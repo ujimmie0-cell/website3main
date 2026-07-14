@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>vanitas | Main</title>
+    <style>
+        /* --- Global Styles --- */
+        body {
+            font-family: "Courier New", Courier, monospace, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #000000; 
+            color: #ffffff; 
+        }
+
+        /* --- Layout Grid --- */
+        .container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* --- Left Sidebar Panels --- */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .box {
+            border: 2px solid #ffffff; 
+            padding: 15px;
+        }
+
+        .sidebar-box {
+            background-color: #d1d5db; 
+            color: #000000; 
+        }
+
+        .sidebar-box h2 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .sidebar-box ul {
+            list-style-type: none;
+            padding-left: 0;
+            margin: 0;
+        }
+
+        .sidebar-box ul li {
+            margin-bottom: 10px;
+        }
+
+        /* --- Main Content Panel (Blog) --- */
+        .main-content {
+            background-color: #ffffff; 
+            color: #000000; 
+            border: 2px solid #ffffff; 
+            padding: 25px;
+        }
+
+        .main-content h1 {
+            margin-top: 0;
+            font-size: 1.4rem;
+            font-weight: bold;
+            border-bottom: 1px solid #000000;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+        }
+
+        .blog-post {
+            line-height: 1.5;
+            margin-bottom: 40px;
+            padding-bottom: 25px;
+            border-bottom: 1px dashed #000000;
+            white-space: pre-wrap; 
+        }
+
+        .blog-post:last-of-type {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .blog-embedded-img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 12px 0;
+            border: 1px solid #000000;
+        }
+
+        /* --- Pagination Layout --- */
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 24px;
+            font-size: 0.8rem;
+            border: 1px solid #000000;
+            border-radius: 4px;
+            padding: 6px;
+            background: #f3f4f6;
+            color: #000000;
+        }
+
+        .pag-btn {
+            background: transparent;
+            border: none;
+            color: #000000;
+            cursor: pointer;
+            font-family: inherit;
+            padding: 2px 6px;
+            font-weight: bold;
+        }
+        .pag-btn:hover:not(:disabled) { text-decoration: underline; }
+        .pag-btn:disabled { color: #888888; cursor: not-allowed; opacity: 0.4; }
+
+        /* --- Links --- */
+        a { color: #0000ee; text-decoration: underline; font-weight: bold; }
+        a:visited { color: #551a8b; }
+        a:hover { color: #ff0000; }
+
+        /* --- NEW SYSTEM PARSER CSS MAPPINGS --- */
+        .mk-large { font-size: 1.4rem; font-weight: bold; display: block; margin: 10px 0 6px 0; color: #000000; border-bottom: 1px solid #ddd; }
+        .mk-medium { font-size: 1.2rem; font-weight: bold; display: block; margin: 8px 0 4px 0; color: #222222; }
+        .mk-small { font-size: 1.05rem; font-weight: bold; display: block; margin: 6px 0 2px 0; color: #444444; }
+        
+        .mk-bold { font-weight: bold; }
+        .mk-italic { font-style: italic; }
+        .mk-strike { text-decoration: line-through; opacity: 0.6; }
+        .mk-underline { text-decoration: underline; }
+        .mk-highlight { background-color: #ffff00; color: #000000; padding: 0 2px; font-weight: bold; }
+        .mk-note { display: block; font-size: 0.85rem; color: #666666; margin: 6px 0; font-style: italic; }
+        .mk-glow { text-shadow: 0 0 8px currentColor; }
+
+        /* Custom Structural Table Elements */
+        .mk-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 14px 0;
+            font-size: 0.9rem;
+        }
+        .mk-table th { background: #eaeaea; border: 1px solid #000000; padding: 6px 8px; font-weight: bold; text-align: left; }
+        .mk-table td { border: 1px solid #000000; padding: 6px 8px; }
+
+        /* Complex Grid Layout Blocks */
+        .mk-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+            padding: 10px;
+            background: #f9f9f9;
+            border: 1px dashed #000000;
+        }
+        .mk-gallery img { width: 100%; height: auto; object-fit: cover; border: 1px solid #000000; }
+
+        .mk-details {
+            border: 1px solid #000000;
+            padding: 8px 12px;
+            margin: 12px 0;
+            background: #f3f4f6;
+        }
+        .mk-details summary { font-weight: bold; cursor: pointer; outline: none; }
+        .mk-details[open] summary { border-bottom: 1px dashed #000000; padding-bottom: 4px; margin-bottom: 6px; }
+
+        .mk-raw-code {
+            font-family: Courier, monospace;
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            padding: 6px 10px;
+            display: block;
+            margin: 8px 0;
+            border-radius: 4px;
+            color: #333333;
+            white-space: pre-wrap;
+        }
+
+        /* Core Colors Mapping Modifiers */
+        .c-grey { color: #777777; }
+        .c-brown { color: #8b4513; }
+        .c-red { color: #cc0000; }
+        .c-orange { color: #d96600; }
+        .c-yellow { color: #b5b500; }
+        .c-green { color: #008800; }
+        .c-blue { color: #0000cc; }
+        .c-indigo { color: #4b0082; }
+        .c-violet { color: #8b008b; }
+        .c-pink { color: #ff69b4; }
+        
+        @keyframes rainbow-anim {
+            0% { color: #cc0000; } 16% { color: #d96600; } 33% { color: #b5b500; }
+            50% { color: #008800; } 66% { color: #0000cc; } 83% { color: #8b008b; } 100% { color: #cc0000; }
+        }
+        .c-rainbow { animation: rainbow-anim 4s infinite linear; font-weight: bold; }
+
+        @media (max-width: 768px) {
+            .container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <aside class="sidebar">
+            <div class="box sidebar-box">
+                <h2>Explore</h2>
+                <ul>
+                    <li><a href="https://guestbook.vanitas.lol">Guestbook</a></li>
+                    <li><a href="https://bio.vanitas.lol">Bio</a></li>
+                </ul>
+            </div>
+
+            <div class="box sidebar-box">
+                <h2>About</h2>
+                <p>
+                    I haven't thought of anything to put here, yet. This website will be frequently updated.
+                </p>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <h1>Blog</h1>
+            <div id="blogPostsContainer">Loading articles directly from source...</div>
+            
+            <div class="pagination-container" id="blogPaginationControls"></div>
+        </main>
+
+    </div>
+
+    <script>
+        let GITHUB_FILE_URL = 'https://raw.githubusercontent.com/ujimmie0-cell/plaintextblog/refs/heads/main/blog2.txt';
+
+        let allBlogPosts = [];
+        let currentPage = 1;
+        const postsPerPage = 5;
+
+        function convertToRawGitHubUrl(url) {
+            if (url.includes('github.com') && !url.includes('raw.githubusercontent.com')) {
+                return url.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
+            }
+            return url;
+        }
+
+        // Helper function to build classes and inline styles from the style descriptor strings
+        function computeStyleAttributes(styleString) {
+            if (!styleString) return '';
+            const tokens = styleString.split(',').map(t => t.trim());
+            let classes = [];
+            let styles = [];
+
+            tokens.forEach(token => {
+                if (/^#[0-9A-Fa-f]{3,6}$/.test(token)) {
+                    styles.push(`color: ${token}`);
+                } else if (['grey','brown','red','orange','yellow','green','blue','indigo','violet','pink','rainbow'].includes(token)) {
+                    classes.push(`c-${token}`);
+                } else if (['center','left','right','justify'].includes(token)) {
+                    styles.push(`text-align: ${token}`);
+                } else if (['block','inline'].includes(token)) {
+                    styles.push(`display: ${token}`);
+                } else if (token === 'glow') {
+                    classes.push('mk-glow');
+                } else if (token === 'highlight') {
+                    classes.push('mk-highlight');
+                } else if (token === 'note') {
+                    classes.push('mk-note');
+                }
+            });
+
+            let attributes = '';
+            if (classes.length > 0) attributes += ` class="${classes.join(' ')}"`;
+            if (styles.length > 0) attributes += ` style="${styles.join('; ')}"`;
+            return attributes;
+        }
+
+        function parseTextboardMarkup(rawText) {
+            let finalOutput = rawText;
+            let blocksRegistry = [];
+
+            // 1. Gallery Block System: gallery[\n urls \n]
+            const galleryRegex = /gallery\[([\s\S]*?)\]/g;
+            let galMatch;
+            while ((galMatch = galleryRegex.exec(rawText)) !== null) {
+                const blockId = 'BGAL' + Math.random().toString(36).substr(2, 9);
+                let imagesHtml = '';
+                const lines = galMatch[1].split(/\r?\n/);
+                
+                lines.forEach(line => {
+                    let cleanLine = line.trim();
+                    if (cleanLine) {
+                        let parts = cleanLine.split('|');
+                        let url = parts[0].trim();
+                        let title = parts[1] ? parts[1].trim().replace(/"/g, '&quot;') : '';
+                        imagesHtml += `<img src="${url}" title="${title}" alt="Gallery image">`;
+                    }
+                });
+                
+                blocksRegistry.push({
+                    raw: galMatch[0],
+                    token: `XBLOCKMATCHX${blockId}X`,
+                    html: `<div class="mk-gallery">${imagesHtml}</div>`
+                });
+            }
+
+            // 2. Dropdown Block System: dropdown|title[\n lines \n]
+            const dropdownRegex = /dropdown\|([^[\n]+)\[([\s\S]*?)\]/g;
+            let detMatch;
+            while ((detMatch = dropdownRegex.exec(rawText)) !== null) {
+                const blockId = 'BDET' + Math.random().toString(36).substr(2, 9);
+                const titleText = detMatch[1].trim();
+                let insideContent = detMatch[2];
+                
+                let formattedInside = applyTextFormatting(insideContent);
+                let fullDetailsHtml = `<details class="mk-details"><summary>${titleText}</summary>${formattedInside}</details>`;
+                
+                blocksRegistry.push({
+                    raw: detMatch[0],
+                    token: `XBLOCKMATCHX${blockId}X`,
+                    html: fullDetailsHtml
+                });
+            }
+
+            // 3. Table Block System: table[\n elements \n]
+            const tableRegex = /table\[([\s\S]*?)\]/g;
+            let tblMatch;
+            while ((tblMatch = tableRegex.exec(rawText)) !== null) {
+                const blockId = 'BTBL' + Math.random().toString(36).substr(2, 9);
+                let tableLines = tblMatch[1].split(/\r?\n/);
+                let tableHtml = '<table class="mk-table">';
+                
+                tableLines.forEach((line, index) => {
+                    if (line.trim()) {
+                        let cells = line.split('|');
+                        tableHtml += '<tr>';
+                        cells.forEach(cell => {
+                            let parsedCell = applyTextFormatting(cell.trim());
+                            if (index === 0) {
+                                tableHtml += `<th>${parsedCell}</th>`;
+                            } else {
+                                tableHtml += `<td>${parsedCell}</td>`;
+                            }
+                        });
+                        tableHtml += '</tr>';
+                    }
+                });
+                tableHtml += '</table>';
+
+                blocksRegistry.push({
+                    raw: tblMatch[0],
+                    token: `XBLOCKMATCHX${blockId}X`,
+                    html: tableHtml
+                });
+            }
+
+            // 4. List Block System: list[\n elements \n]
+            const listRegex = /list\[([\s\S]*?)\]/g;
+            let listMatch;
+            while ((listMatch = listRegex.exec(rawText)) !== null) {
+                const blockId = 'BLST' + Math.random().toString(36).substr(2, 9);
+                let listLines = listMatch[1].split(/\r?\n/);
+                let listHtml = '<ul>';
+                
+                listLines.forEach(line => {
+                    if (line.trim()) {
+                        listHtml += `<li>${applyTextFormatting(line.trim())}</li>`;
+                    }
+                });
+                listHtml += '</ul>';
+
+                blocksRegistry.push({
+                    raw: listMatch[0],
+                    token: `XBLOCKMATCHX${blockId}X`,
+                    html: listHtml
+                });
+            }
+
+            // Substitute complex matching structures block tokens
+            blocksRegistry.forEach(item => {
+                finalOutput = finalOutput.replace(item.raw, item.token);
+            });
+
+            // Isolate code execution tags block safely
+            const segments = [];
+            const codeBlockRegex = /```([\s\S]*?)```/g;
+            let lastIndex = 0;
+            let codeMatch;
+
+            while ((codeMatch = codeBlockRegex.exec(finalOutput)) !== null) {
+                if (codeMatch.index > lastIndex) {
+                    segments.push({ type: 'text', content: finalOutput.substring(lastIndex, codeMatch.index) });
+                }
+                segments.push({ type: 'code', content: codeMatch[1] });
+                lastIndex = codeBlockRegex.lastIndex;
+            }
+            if (lastIndex < finalOutput.length) {
+                segments.push({ type: 'text', content: finalOutput.substring(lastIndex) });
+            }
+
+            let parsedHtml = segments.length === 0 ? applyTextFormatting(finalOutput) : segments.map(seg => {
+                if (seg.type === 'code') {
+                    let cleanCode = seg.content.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                    return `<span class="mk-raw-code">${cleanCode}</span>`;
+                } else {
+                    return applyTextFormatting(seg.content);
+                }
+            }).join('');
+
+            // Hot-swap tracking components back into the pipeline layout string
+            blocksRegistry.forEach(item => {
+                parsedHtml = parsedHtml.split(item.token).join(item.html);
+            });
+
+            return parsedHtml;
+        }
+
+        function applyTextFormatting(text) {
+            let safeHtml = text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+
+            // Explicit Inline Hyperlink mapping rules: link[namehere]"linkhere"
+            safeHtml = safeHtml.replace(/link\[([^\]\n]+)\]"([^"\n]+)"/g, '<a href="$2" target="_blank">$1</a>');
+
+            // Explicit Style Syntax Handler: text{style:style1,style2}
+            safeHtml = safeHtml.replace(/([^{}\n]+)\{style:([^{}\n]+)\}/g, (match, bodyText, styleList) => {
+                let attrs = computeStyleAttributes(styleList);
+                return `<span${attrs}>${bodyText}</span>`;
+            });
+
+            // Structural Headers Layout mapping rules
+            safeHtml = safeHtml.replace(/^### (.*?)$/gm, '<span class="mk-small">$1</span>');
+            safeHtml = safeHtml.replace(/^## (.*?)$/gm, '<span class="mk-medium">$1</span>');
+            safeHtml = safeHtml.replace(/^# (.*?)$/gm, '<span class="mk-large">$1</span>');
+
+            // Standard Markdown inline text modifiers
+            safeHtml = safeHtml.replace(/\*\*(.*?)\*\*/g, '<span class="mk-bold">$1</span>');
+            safeHtml = safeHtml.replace(/\*(.*?)\*/g, '<span class="mk-italic">$1</span>');
+            safeHtml = safeHtml.replace(/_(.*?)_/g, '<span class="mk-underline">$1</span>');
+            safeHtml = safeHtml.replace(/==(.*?)==/g, '<span class="mk-highlight">$1</span>');
+            safeHtml = safeHtml.replace(/~(.*?)~/g, '<span class="mk-strike">$1</span>');
+
+            return safeHtml;
+        }
+
+        async function loadRemoteBlogEngine() {
+            try {
+                const targetUrl = convertToRawGitHubUrl(GITHUB_FILE_URL);
+                const response = await fetch(targetUrl);
+                if (!response.ok) throw new Error("Resource structural tracking failure.");
+                const rawText = await response.text();
+                
+                const posts = [];
+                const postRegex = /<start>([\s\S]*?)<end>/g;
+                let match;
+
+                while ((match = postRegex.exec(rawText)) !== null) {
+                    const postBody = match[1].trim();
+                    if (postBody) posts.push(postBody);
+                }
+
+                allBlogPosts = posts.reverse();
+                currentPage = 1;
+                renderActivePageData();
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('blogPostsContainer').innerHTML = "<p style='color: #cc0000;'>Critical pipeline failure: Unable to fetch text assets.</p>";
+                document.getElementById('blogPaginationControls').innerHTML = '';
+            }
+        }
+
+        function renderActivePageData() {
+            const container = document.getElementById('blogPostsContainer');
+            container.innerHTML = "";
+
+            if (allBlogPosts.length === 0) {
+                container.innerHTML = "<p style='opacity: 0.5; font-style: italic;'>No articles found on remote file layout.</p>";
+                document.getElementById('blogPaginationControls').innerHTML = '';
+                return;
+            }
+
+            const totalPages = Math.ceil(allBlogPosts.length / postsPerPage);
+            if (currentPage > totalPages) currentPage = totalPages || 1;
+
+            const startIndex = (currentPage - 1) * postsPerPage;
+            const endIndex = startIndex + postsPerPage;
+            const activePagePosts = allBlogPosts.slice(startIndex, endIndex);
+
+            activePagePosts.forEach(postRawContent => {
+                const articleElement = document.createElement('article');
+                articleElement.className = 'blog-post';
+                articleElement.innerHTML = parseTextboardMarkup(postRawContent);
+                container.appendChild(articleElement);
+            });
+
+            renderPaginationControls(totalPages);
+        }
+
+        function renderPaginationControls(totalPages) {
+            const container = document.getElementById('blogPaginationControls');
+            container.innerHTML = '';
+            if (totalPages <= 1) return;
+
+            const firstBtn = document.createElement('button');
+            firstBtn.className = 'pag-btn';
+            firstBtn.textContent = '[First]';
+            firstBtn.disabled = (currentPage === 1);
+            firstBtn.onclick = () => { currentPage = 1; renderActivePageData(); window.scrollTo(0,0); };
+            container.appendChild(firstBtn);
+
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'pag-btn';
+            prevBtn.textContent = '[Prev]';
+            prevBtn.disabled = (currentPage === 1);
+            prevBtn.onclick = () => { currentPage--; renderActivePageData(); window.scrollTo(0,0); };
+            container.appendChild(prevBtn);
+
+            const statusSpan = document.createElement('span');
+            statusSpan.textContent = `[ ${currentPage} / ${totalPages} ]`;
+            container.appendChild(statusSpan);
+
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'pag-btn';
+            nextBtn.textContent = '[Next]';
+            nextBtn.disabled = (currentPage === totalPages);
+            nextBtn.onclick = () => { currentPage++; renderActivePageData(); window.scrollTo(0,0); };
+            container.appendChild(nextBtn);
+
+            const lastBtn = document.createElement('button');
+            lastBtn.className = 'pag-btn';
+            lastBtn.textContent = '[Last]';
+            lastBtn.disabled = (currentPage === totalPages);
+            lastBtn.onclick = () => { currentPage = totalPages; renderActivePageData(); window.scrollTo(0,0); };
+            container.appendChild(lastBtn);
+        }
+
+        window.addEventListener('DOMContentLoaded', loadRemoteBlogEngine);
+    </script>
+</body>
+</html>
