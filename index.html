@@ -110,6 +110,63 @@
             margin-bottom: 20px;
         }
 
+        /* --- Nutria Search Bar --- */
+        .nutria-search-box {
+            display: flex;
+            align-items: center;
+            background-color: #121212;
+            border: 1px solid #262626;
+            border-radius: 6px;
+            padding: 6px 12px;
+            gap: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nutria-search-box:hover, .nutria-search-box:focus-within {
+            border-color: #555555;
+            background-color: #181818;
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.05);
+            transform: translateY(-1px);
+        }
+
+        .nutria-search-box .search-icon {
+            font-size: 0.85rem;
+            color: #888888;
+            font-weight: bold;
+        }
+
+        .nutria-search-box input {
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 0.85rem;
+            outline: none;
+            width: 150px;
+            transition: width 0.3s ease;
+        }
+
+        .nutria-search-box input:focus {
+            width: 200px;
+        }
+
+        /* --- Animations --- */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
         /* --- Statuses / Blog Grid (3-Column Layout, 3 Posts Per Page) --- */
         .blog-grid {
             display: grid;
@@ -139,7 +196,7 @@
             flex-direction: column;
             justify-content: space-between;
             cursor: pointer;
-            transition: border-color 0.2s, background-color 0.2s;
+            transition: border-color 0.2s, background-color 0.2s, transform 0.2s, box-shadow 0.2s;
             height: 240px;
             overflow: hidden;
             position: relative;
@@ -149,6 +206,8 @@
         .status-card:hover {
             border-color: #555555;
             background-color: #181818;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
         }
 
         .card-header {
@@ -204,6 +263,7 @@
             align-items: flex-start;
             padding-top: 50px;
             overflow-y: auto;
+            animation: fadeIn 0.2s ease;
         }
 
         .modal-overlay.active {
@@ -221,6 +281,7 @@
             color: #ffffff;
             box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
             margin-bottom: 50px;
+            animation: fadeInUp 0.3s ease;
         }
 
         .modal-close-btn {
@@ -234,6 +295,7 @@
             font-weight: bold;
             cursor: pointer;
             font-family: inherit;
+            transition: color 0.2s;
         }
 
         .modal-close-btn:hover {
@@ -265,9 +327,12 @@
             font-family: inherit;
             padding: 4px 10px;
             border-radius: 4px;
+            transition: all 0.2s;
         }
         .pag-btn:hover:not(:disabled) {
             background: #262626;
+            border-color: #555555;
+            transform: translateY(-1px);
         }
         .pag-btn:disabled {
             opacity: 0.2;
@@ -295,6 +360,12 @@
             padding: 15px;
             text-align: center;
             width: 160px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .qr-card:hover {
+            border-color: #555555;
+            transform: translateY(-2px);
         }
 
         .qr-card img {
@@ -410,7 +481,15 @@
     </section>
 
     <main class="main-container">
-        <h2 class="section-title">Recent Posts</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+            <h2 class="section-title" style="margin-bottom: 0;">Recent Posts</h2>
+            <div id="searchBarContainer" style="display: none; animation: fadeIn 0.4s ease;">
+                <div class="nutria-search-box">
+                    <span class="search-icon">Q</span>
+                    <input type="text" id="postSearchInput" placeholder="Search posts..." oninput="handleSearchInput(event)">
+                </div>
+            </div>
+        </div>
 
         <div id="blogPostsContainer" class="blog-grid">
             Loading articles directly from source...
@@ -452,6 +531,7 @@
         let GITHUB_FILE_URL = 'https://raw.githubusercontent.com/ujimmie0-cell/plaintextblog/refs/heads/main/blog2.txt';
 
         let allBlogPosts = [];
+        let searchQuery = '';
         let currentPage = 1;
         const postsPerPage = 3;
 
@@ -691,26 +771,44 @@
             }
         }
 
+        function handleSearchInput(event) {
+            searchQuery = event.target.value;
+            currentPage = 1;
+            renderActivePageData();
+        }
+
         function renderActivePageData() {
             const container = document.getElementById('blogPostsContainer');
             container.innerHTML = "";
 
-            if (allBlogPosts.length === 0) {
-                container.innerHTML = "<p style='opacity: 0.5;'>No posts found.</p>";
+            const searchBarContainer = document.getElementById('searchBarContainer');
+            if (allBlogPosts.length > 0) {
+                searchBarContainer.style.display = 'block';
+            } else {
+                searchBarContainer.style.display = 'none';
+            }
+
+            const filteredPosts = allBlogPosts.filter(post =>
+                post.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+
+            if (filteredPosts.length === 0) {
+                container.innerHTML = "<p style='opacity: 0.5; animation: fadeIn 0.3s ease;'>No posts found.</p>";
                 document.getElementById('blogPaginationControls').innerHTML = '';
                 return;
             }
 
-            const totalPages = Math.ceil(allBlogPosts.length / postsPerPage);
+            const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
             if (currentPage > totalPages) currentPage = totalPages || 1;
 
             const startIndex = (currentPage - 1) * postsPerPage;
-            const activePagePosts = allBlogPosts.slice(startIndex, startIndex + postsPerPage);
+            const activePagePosts = filteredPosts.slice(startIndex, startIndex + postsPerPage);
 
-            activePagePosts.forEach(postRawContent => {
+            activePagePosts.forEach((postRawContent, index) => {
                 const parsedHtml = parseTextboardMarkup(postRawContent);
                 const card = document.createElement('article');
                 card.className = 'status-card';
+                card.style.animation = `fadeInUp 0.4s ease ${index * 0.08}s both`;
                 card.onclick = () => openPostModal(parsedHtml);
 
                 card.innerHTML = `
